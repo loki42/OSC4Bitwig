@@ -370,9 +370,15 @@ OSCParser.prototype.parse = function (msg)
         case 'action':
             if (oscParts.length == 0)
                 return;
-            var cmd = oscParts[0].replace ('-', ' ');
-println(cmd);            
-            this.model.getApplication ().getAction (cmd).invoke ();
+            var cmd = oscParts[0].replace (/-/g, ' ');
+            try
+            {
+                this.model.getApplication ().getAction (cmd).invoke ();
+            }
+            catch (ex)
+            {
+                host.errorln ("Could not execute action: " + cmd);
+            }
             break;
 
 		default:

@@ -47,12 +47,35 @@
 					"bgfillcolor_type" : "gradient",
 					"fontname" : "Arial",
 					"fontsize" : 12.0,
+					"id" : "obj-212",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 9.5, 1161.0, 283.0, 22.0 ],
+					"style" : "",
+					"text" : "/action/Create-Scene-From-Playing-Launcher-Clips",
+					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgfillcolor_angle" : 270.0,
+					"bgfillcolor_autogradient" : 0.79,
+					"bgfillcolor_color" : [ 0.290196, 0.309804, 0.301961, 1.0 ],
+					"bgfillcolor_color1" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_color2" : [ 0.685, 0.685, 0.685, 1.0 ],
+					"bgfillcolor_proportion" : 0.39,
+					"bgfillcolor_type" : "gradient",
+					"fontname" : "Arial",
+					"fontsize" : 12.0,
 					"id" : "obj-210",
 					"maxclass" : "message",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 101.0, 1108.0, 100.0, 22.0 ],
+					"patching_rect" : [ 14.0, 1135.0, 100.0, 22.0 ],
 					"style" : "",
 					"text" : "/action/Select-All",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -75,7 +98,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 101.0, 1085.0, 77.0, 22.0 ],
+					"patching_rect" : [ 14.0, 1112.0, 77.0, 22.0 ],
 					"style" : "",
 					"text" : "/action/Save",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -5860,6 +5883,15 @@
 					"disabled" : 0,
 					"hidden" : 0,
 					"source" : [ "obj-211", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-212", 0 ]
 				}
 
 			}
