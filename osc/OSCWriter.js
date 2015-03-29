@@ -5,9 +5,8 @@
 OSCWriter.TRACK_ATTRIBS = [ "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "sends", "slots", "crossfadeMode" ];
 OSCWriter.FXPARAM_ATTRIBS = [ "name", "valueStr", "value" ];
 
-function OSCWriter (model, oscHost, oscPort)
+function OSCWriter (model, oscPort)
 {
-    this.oscPort = oscPort;
     this.model   = model;
     
     this.oldValues = {};
