@@ -1,5 +1,5 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
-// (c) 2014
+// (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 function OSCParser (model, receiveHost, receivePort)
@@ -50,6 +50,15 @@ OSCParser.prototype.parse = function (msg)
 
 	switch (oscParts.shift ())
 	{
+        //
+        // Global
+        //
+
+        case 'refresh':
+            writer.flush (true);
+            break;
+
+        
         //
         // Transport
         //
