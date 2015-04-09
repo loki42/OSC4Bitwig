@@ -198,9 +198,16 @@ OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
 
 OSCWriter.prototype.sendOSC = function (address, value, dump)
 {
-    if (!dump && this.oldValues[address] === value)
+    if(!dump && value instanceof Array && value.toString() == this.oldValues[address])
         return;
-    this.oldValues[address] = value;
+    else if (!dump && this.oldValues[address] === value)
+        return;
+        
+    if(value instanceof Array)
+        this.oldValues[address] = value.toString();
+    else
+        this.oldValues[address] = value;
+        
     var msg = new OSCMessage ();
     msg.init (address, value);
     this.messages.push (msg.build ());
