@@ -200,7 +200,9 @@ OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
 
 OSCWriter.prototype.sendOSC = function (address, value, dump)
 {
-    if(!dump && value instanceof Array){
+    if (!dump && this.oldValues[address] === value)
+        return;
+    else if(!dump && value instanceof Array){
         if (address in this.oldValues){
             if(value.length == this.oldValues[address]){
                 var matching = true;
@@ -214,19 +216,19 @@ OSCWriter.prototype.sendOSC = function (address, value, dump)
                     return;
             }
         }
-    }else if (!dump && this.oldValues[address] === value)
-        return;
+    }
     
     this.oldValues[address] = value;
 
     //Convert booleans to int for client compatibility
-    if(value instanceof Array){
+    if(typeof(value) == 'boolean')
+        value = (value) ? 1 : 0;
+    else if(value instanceof Array){
         for(var i=0;i<value.length;i++){
             if(typeof(value[i]) == 'boolean')
                 value[i] = (value[i]) ? 1 : 0;
         }
-    }else if(typeof(value) == 'boolean')
-        value = (value) ? 1 : 0;
+    }
 
     var msg = new OSCMessage ();
     msg.init (address, value);
