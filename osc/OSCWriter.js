@@ -206,7 +206,6 @@ OSCWriter.prototype.sendOSC = function (address, value, dump)
                 var matching = true;
                 for(var i=0; i<value.length; i++){
                     if(value[i] != this.oldValues[address][i]){
-                        
                         matching = false;
                         break;
                     }
