@@ -196,37 +196,29 @@ OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
 	}
 };
 
-
-
 OSCWriter.prototype.sendOSC = function (address, value, dump)
 {
-    if(!dump && value instanceof Array){
-        if (address in this.oldValues){
-            if(value.length == this.oldValues[address]){
-                var matching = true;
-                for(var i=0; i<value.length; i++){
-                    if(value[i] != this.oldValues[address][i]){
-                        matching = false;
-                        break;
-                    }
-                }
-                if(matching)
-                    return;
-            }
+    if (!dump)
+    {
+        if (value instanceof Array)
+        {
+            if (this.compareArray (address, value))
+                return;
         }
-    }else if (!dump && this.oldValues[address] === value)
-        return;
+        else if (this.oldValues[address] === value)
+            return;
+    }
     
     this.oldValues[address] = value;
 
-    //Convert booleans to int for client compatibility
-    if(value instanceof Array){
-        for(var i=0;i<value.length;i++){
-            if(typeof(value[i]) == 'boolean')
-                value[i] = (value[i]) ? 1 : 0;
-        }
-    }else if(typeof(value) == 'boolean')
-        value = (value) ? 1 : 0;
+    // Convert boolean values to integer for client compatibility
+    if (value instanceof Array)
+    {
+        for (var i = 0; i < value.length; i++)
+            value[i] = this.convertBooleanToInt (value[i]);
+    }
+    else
+        value = this.convertBooleanToInt (value);
 
     var msg = new OSCMessage ();
     msg.init (address, value);
@@ -235,7 +227,22 @@ OSCWriter.prototype.sendOSC = function (address, value, dump)
 
 OSCWriter.prototype.sendOSCColor = function (address, red, green, blue, dump)
 {
-    //var color = Math.round (red * 8323072) + Math.round (green * 32512) + Math.round (blue * 127);
-    var color = "RGB(" + red + "," + green + "," + blue + ")";
-    this.sendOSC (address, color, dump);
+    this.sendOSC (address, "RGB(" + red + "," + green + "," + blue + ")", dump);
+};
+
+OSCWriter.prototype.convertBooleanToInt = function (value)
+{
+    return typeof (value) == 'boolean' ? (value ? 1 : 0) : value;
+};
+
+OSCWriter.prototype.compareArray = function (address, value)
+{
+    if (!(address in this.oldValues) || value.length != this.oldValues[address])
+        return false;
+    for (var i = 0; i < value.length; i++)
+    {
+        if (value[i] != this.oldValues[address][i])
+            return false;
+    }
+    return true;
 };
