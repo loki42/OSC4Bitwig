@@ -180,6 +180,11 @@ OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
                 this.sendOSC (trackAddress + p + '/AB', track[p] == 'AB', dump);
                 break;
                 
+            case 'vu':
+                if (Config.enableVUMeters)
+                    this.sendOSC (trackAddress + p, track[p], dump);
+                break;
+                
             default:
                 this.sendOSC (trackAddress + p, track[p], dump);
                 break;
