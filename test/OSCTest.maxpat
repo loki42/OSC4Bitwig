@@ -9,7 +9,7 @@
 			"modernui" : 1
 		}
 ,
-		"rect" : [ 96.0, 77.0, 1790.0, 1089.0 ],
+		"rect" : [ 104.0, 85.0, 1790.0, 1089.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -49,12 +49,87 @@
 					"fontname" : "Arial",
 					"fontsize" : 12.0,
 					"gradient" : 0,
+					"id" : "obj-221",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 1139.5, 292.0, 168.0, 22.0 ],
+					"style" : "",
+					"text" : "/vkb_midi/1/aftertouch/60 127",
+					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_angle" : 270.0,
+					"bgfillcolor_autogradient" : 0.79,
+					"bgfillcolor_color" : [ 0.290196, 0.309804, 0.301961, 1.0 ],
+					"bgfillcolor_color1" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_color2" : [ 0.685, 0.685, 0.685, 1.0 ],
+					"bgfillcolor_proportion" : 0.39,
+					"bgfillcolor_type" : "gradient",
+					"fontname" : "Arial",
+					"fontsize" : 12.0,
+					"gradient" : 0,
+					"id" : "obj-219",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 781.0, 806.0, 61.0, 22.0 ],
+					"style" : "",
+					"text" : "/primary/-",
+					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_angle" : 270.0,
+					"bgfillcolor_autogradient" : 0.79,
+					"bgfillcolor_color" : [ 0.290196, 0.309804, 0.301961, 1.0 ],
+					"bgfillcolor_color1" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_color2" : [ 0.685, 0.685, 0.685, 1.0 ],
+					"bgfillcolor_proportion" : 0.39,
+					"bgfillcolor_type" : "gradient",
+					"fontname" : "Arial",
+					"fontsize" : 12.0,
+					"gradient" : 0,
+					"id" : "obj-220",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 781.0, 782.0, 64.0, 22.0 ],
+					"style" : "",
+					"text" : "/primary/+",
+					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"bgcolor" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_angle" : 270.0,
+					"bgfillcolor_autogradient" : 0.79,
+					"bgfillcolor_color" : [ 0.290196, 0.309804, 0.301961, 1.0 ],
+					"bgfillcolor_color1" : [ 0.678431, 0.819608, 0.819608, 1.0 ],
+					"bgfillcolor_color2" : [ 0.685, 0.685, 0.685, 1.0 ],
+					"bgfillcolor_proportion" : 0.39,
+					"bgfillcolor_type" : "gradient",
+					"fontname" : "Arial",
+					"fontsize" : 12.0,
+					"gradient" : 0,
 					"id" : "obj-218",
 					"maxclass" : "message",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 264.333344, 137.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 252.666672, 137.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/pitchbend 0",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -79,7 +154,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 244.0, 143.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 232.333328, 143.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/pitchbend 64",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -104,7 +179,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 222.666672, 150.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 211.0, 150.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/pitchbend 127",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -3234,7 +3309,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 370.0, 129.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 395.0, 129.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/drum/64 0",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -3284,7 +3359,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 352.0, 142.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 377.0, 142.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/drum/64 127",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -3309,7 +3384,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 327.0, 109.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 352.0, 109.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/drum/-",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -3334,7 +3409,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1139.5, 303.0, 112.0, 22.0 ],
+					"patching_rect" : [ 1139.5, 328.0, 112.0, 22.0 ],
 					"style" : "",
 					"text" : "/vkb_midi/1/drum/+",
 					"textcolor" : [ 0.0, 0.0, 0.0, 1.0 ]
@@ -6504,7 +6579,34 @@
 					"destination" : [ "obj-1", 0 ],
 					"disabled" : 0,
 					"hidden" : 0,
+					"source" : [ "obj-219", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
 					"source" : [ "obj-22", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-220", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-221", 0 ]
 				}
 
 			}
