@@ -27,10 +27,21 @@ OSCWriter.EMPTY_TRACK =
     crossfadeMode: 'AB'
 };
 
+OSCWriter.NOTE_STATE_COLORS = [];
+
+OSCWriter.NOTE_STATE_COLOR_OFF = [ 0, 0, 0 ]; // Black
+OSCWriter.NOTE_STATE_COLOR_ON  = [ 0, 1, 0 ]; // Green
+OSCWriter.NOTE_STATE_COLOR_REC = [ 1, 0, 0 ]; // Red
+
+OSCWriter.NOTE_STATE_COLORS[Scales.SCALE_COLOR_OFF]          = [ 0, 0, 0 ]; // Black
+OSCWriter.NOTE_STATE_COLORS[Scales.SCALE_COLOR_OCTAVE]       = [ 0.2666666805744171 , 0.7843137383460999 , 1 ]; // Ocean Blue
+OSCWriter.NOTE_STATE_COLORS[Scales.SCALE_COLOR_NOTE]         = [ 1, 1, 1 ]; // White
+OSCWriter.NOTE_STATE_COLORS[Scales.SCALE_COLOR_OUT_OF_SCALE] = [ 0, 0, 0 ]; // Black
+
 
 function OSCWriter (model, oscPort)
 {
-    this.model   = model;
+    this.model = model;
     
     this.oldValues = {};
     this.messages = [];
@@ -93,7 +104,6 @@ OSCWriter.prototype.flush = function (dump)
         selectedTrack = OSCWriter.EMPTY_TRACK;
     this.flushTrack ('/track/selected/', selectedTrack, dump);
     
-
     //
     // Device
     //
@@ -144,12 +154,15 @@ OSCWriter.prototype.flush = function (dump)
 	for (var i = 0; i < cd.numParams; i++)
         this.flushFX ('/user/param/' + (i + 1) + '/', user.getUserParam (i), dump);
 
-    if (this.messages.length == 0)
-    {
-        this.messages = [];
-        return;
-	}
+    //
+    // Notes
+    //
     
+    this.flushNotes (dump);
+
+    // Send all collected messages
+    if (this.messages.length == 0)
+        return;
     while (msg = this.messages.shift ())
         host.sendDatagramPacket (Config.sendHost, Config.sendPort, msg);
 };
@@ -227,6 +240,27 @@ OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
         var p = OSCWriter.FXPARAM_ATTRIBS[a];
         this.sendOSC (fxAddress + p, fxParam[p], dump);
 	}
+};
+
+OSCWriter.prototype.flushNotes = function (dump)
+{
+    var isKeyboardEnabled = this.canSelectedTrackHoldNotes ();
+    var isRecording = this.model.hasRecordingState ();
+    var scales = this.model.getScales();
+    for (var i = 0; i < 127; i++)
+    {
+        var color = isKeyboardEnabled ? (this.model.pressedKeys[i] > 0 ?
+            (isRecording ? OSCWriter.NOTE_STATE_COLOR_REC : OSCWriter.NOTE_STATE_COLOR_ON) :
+            OSCWriter.NOTE_STATE_COLORS[scales.getColor (this.model.keysTranslation, i)]) : 
+            OSCWriter.NOTE_STATE_COLOR_OFF;
+        this.sendOSCColor ('/vkb_midi/note/' + i + '/color', color[0], color[1], color[2], dump);
+    }
+};
+
+OSCWriter.prototype.canSelectedTrackHoldNotes = function ()
+{
+    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
+    return t != null && t.canHoldNotes;
 };
 
 OSCWriter.prototype.sendOSC = function (address, value, dump)

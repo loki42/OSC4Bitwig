@@ -11,10 +11,7 @@ function OSCParser (model, receiveHost, receivePort)
     this.scales = this.model.getScales ();
     
     this.model.getCurrentTrackBank ().setIndication (true);
-
-    this.keysTranslation = null;
-    this.drumsTranslation = null;
-    this.updateNoteMapping ();
+    this.model.updateNoteMapping ();
     
     this.port = host.getMidiInPort (0);
     this.noteInput = this.port.createNoteInput ("OSC Midi");
@@ -1031,7 +1028,14 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     var velocity = parseInt (value);
                     if (velocity > 0)
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
-                    this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.keysTranslation[note], velocity);
+                    this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.model.keysTranslation[note], velocity);
+                    
+                    // Mark selected notes
+                    for (var i = 0; i < 128; i++)
+                    {
+                        if (this.model.keysTranslation[note] == this.model.keysTranslation[i])
+                            this.model.pressedKeys[i] = velocity;
+                    }
             }
             break;
             
@@ -1062,7 +1066,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     var velocity = parseInt (value);
                     if (velocity > 0)
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
-                    this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.drumsTranslation[note], velocity);
+                    this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.model.drumsTranslation[note], velocity);
                     break;
             }
             break;
@@ -1077,7 +1081,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
             var velocity = parseInt (value);
             if (velocity > 0)
                 velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
-            this.noteInput.sendRawMidiEvent (0xA0 + midiChannel, this.keysTranslation[note], velocity);
+            this.noteInput.sendRawMidiEvent (0xA0 + midiChannel, this.model.keysTranslation[note], velocity);
             break;
             
         case 'pitchbend':
@@ -1088,12 +1092,6 @@ OSCParser.prototype.parseMidi = function (parts, value)
 			println ('Unhandled Midi Parameter: ' + p);
             break;
     }
-};
-
-OSCParser.prototype.updateNoteMapping = function ()
-{
-    this.drumsTranslation = this.scales.getDrumMatrix ();
-    this.keysTranslation = this.scales.getNoteMatrix (); 
 };
 
 OSCParser.prototype.selectTrack = function (index)
