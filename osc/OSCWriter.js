@@ -2,8 +2,31 @@
 // (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-OSCWriter.TRACK_ATTRIBS = [ "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "sends", "slots", "crossfadeMode" ];
+OSCWriter.TRACK_ATTRIBS = [ "exists", "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "canHoldNotes", "sends", "slots", "crossfadeMode" ];
 OSCWriter.FXPARAM_ATTRIBS = [ "name", "valueStr", "value" ];
+OSCWriter.EMPTY_TRACK =
+{
+    exists: false,
+    activated: true,
+    selected: false,
+    name: '',
+    volumeStr: '',
+    volume: 0,
+    panStr: '',
+    pan: 0,
+    color: 0,
+    vu: 0,
+    mute: false,
+    solo: false,
+    recarm: false,
+    monitor: false,
+    autoMonitor: false,
+    canHoldNotes: false,
+    sends: [],
+    slots: [],
+    crossfadeMode: 'AB'
+};
+
 
 function OSCWriter (model, oscPort)
 {
@@ -61,10 +84,15 @@ OSCWriter.prototype.flush = function (dump)
     // Master-/Track(-commands)
     //
     
-	var tb = this.model.getTrackBank ();
-	for (var i = 0; i < tb.numTracks; i++)
-        this.flushTrack ('/track/' + (i + 1) + '/', tb.getTrack (i), dump);
+	var trackBank = this.model.getCurrentTrackBank ();
+	for (var i = 0; i < trackBank.numTracks; i++)
+        this.flushTrack ('/track/' + (i + 1) + '/', trackBank.getTrack (i), dump);
     this.flushTrack ('/master/', this.model.getMasterTrack (), dump);
+    var selectedTrack = trackBank.getSelectedTrack ();
+    if (selectedTrack == null)
+        selectedTrack = OSCWriter.EMPTY_TRACK;
+    this.flushTrack ('/track/selected/', selectedTrack, dump);
+    
 
     //
     // Device
@@ -91,7 +119,7 @@ OSCWriter.prototype.flush = function (dump)
     // Primary Device
     //
 
-    cd = tb.primaryDevice;
+    cd = trackBank.primaryDevice;
     var selDevice = cd.getSelectedDevice ();
     this.sendOSC ('/primary/name', selDevice.name, dump);
     this.sendOSC ('/primary/bypass', !selDevice.enabled, dump);
