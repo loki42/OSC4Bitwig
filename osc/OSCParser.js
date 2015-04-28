@@ -1023,7 +1023,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     if (value == null || value > 0)
                     {
                         this.scales.incOctave ();
-                        this.updateNoteMapping ();
+                        this.model.updateNoteMapping ();
                         displayNotification (this.scales.getRangeText ());
                     }
                     break;
@@ -1032,7 +1032,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     if (value == null || value > 0)
                     {
                         this.scales.decOctave ();
-                        this.updateNoteMapping ();
+                        this.model.updateNoteMapping ();
                         displayNotification (this.scales.getRangeText ());
                     }
                     break;
@@ -1061,7 +1061,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     if (value == null || value > 0)
                     {
                         this.scales.incDrumOctave ();
-                        this.updateNoteMapping ();
+                        this.model.updateNoteMapping ();
                         displayNotification (this.scales.getDrumRangeText ());
                     }
                     break;
@@ -1070,7 +1070,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     if (value == null || value > 0)
                     {
                         this.scales.decDrumOctave ();
-                        this.updateNoteMapping ();
+                        this.model.updateNoteMapping ();
                         displayNotification (this.scales.getDrumRangeText ());
                     }
                     break;
