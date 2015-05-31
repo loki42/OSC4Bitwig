@@ -2,6 +2,16 @@
 // (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
+OSCMessage.BUNDLE_HEADER = [ "#".charCodeAt(0),        // Bundle identification string
+                            "b".charCodeAt(0),
+                            "u".charCodeAt(0),
+                            "n".charCodeAt(0),
+                            "d".charCodeAt(0),
+                            "l".charCodeAt(0),
+                            "e".charCodeAt(0),
+                            0,                        // Null termination for string
+                            0, 0, 0, 0, 0, 0, 0, 1];  // Special time code -> execute immediately
+
 function OSCMessage ()
 {
     this.address = "";
@@ -98,6 +108,18 @@ OSCMessage.prototype.parse = function (data)
     }
     
     return null;
+};
+
+/* Takes an array of byte arrays. */
+OSCMessage.prototype.buildBundle = function (messages)
+{
+    this.data = [].concat (OSCMessage.BUNDLE_HEADER);
+    while (msg = messages.shift ())
+    {
+        this.writeInteger (msg.length);
+        this.data = this.data.concat (msg);
+    }
+    return this.data;
 };
 
 OSCMessage.prototype.build = function ()
@@ -476,7 +498,7 @@ OSCMessage.prototype.readTimeTag = function ()
     var millisSince1970 = this.readInteger ();
     /* var fractionsOfASecond = */ this.readInteger ();
     
-    // Do it immediatly
+    // Do it immediately
     if (millisSince1970 == 0)
         return null;
 

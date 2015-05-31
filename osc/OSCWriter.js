@@ -163,8 +163,8 @@ OSCWriter.prototype.flush = function (dump)
     // Send all collected messages
     if (this.messages.length == 0)
         return;
-    while (msg = this.messages.shift ())
-        host.sendDatagramPacket (Config.sendHost, Config.sendPort, msg);
+    var data = new OSCMessage ().buildBundle (this.messages);
+    host.sendDatagramPacket (Config.sendHost, Config.sendPort, data);
 };
 
 OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
