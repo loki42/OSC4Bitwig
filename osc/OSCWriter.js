@@ -105,47 +105,20 @@ OSCWriter.prototype.flush = function (dump)
     this.flushTrack ('/track/selected/', selectedTrack, dump);
     
     //
-    // Device
+    // Scenes
     //
-
-    var cd = this.model.getCursorDevice ();
-    var selDevice = cd.getSelectedDevice ();
-    this.sendOSC ('/device/name', selDevice.name, dump);
-    this.sendOSC ('/device/bypass', !selDevice.enabled, dump);
-	for (var i = 0; i < cd.numParams; i++)
-    {
-        var oneplus = i + 1;
-        this.flushFX ('/device/param/' + oneplus + '/', cd.getFXParam (i), dump);
-        this.flushFX ('/device/common/' + oneplus + '/', cd.getCommonParam (i), dump);
-        this.flushFX ('/device/envelope/' + oneplus + '/', cd.getEnvelopeParam (i), dump);
-        this.flushFX ('/device/macro/' + oneplus + '/', cd.getMacroParam (i), dump);
-        this.flushFX ('/device/modulation/' + oneplus + '/', cd.getModulationParam (i), dump);
-    }
-    this.sendOSC ('/device/category', cd.categoryProvider.selectedItemVerbose, dump);
-    this.sendOSC ('/device/creator', cd.creatorProvider.selectedItemVerbose, dump);
-    this.sendOSC ('/device/preset', cd.presetProvider.selectedItemVerbose, dump);
-
-    //
-    // Primary Device
-    //
-
-    cd = trackBank.primaryDevice;
-    var selDevice = cd.getSelectedDevice ();
-    this.sendOSC ('/primary/name', selDevice.name, dump);
-    this.sendOSC ('/primary/bypass', !selDevice.enabled, dump);
-	for (var i = 0; i < cd.numParams; i++)
-    {
-        var oneplus = i + 1;
-        this.flushFX ('/primary/param/' + oneplus + '/', cd.getFXParam (i), dump);
-        this.flushFX ('/primary/common/' + oneplus + '/', cd.getCommonParam (i), dump);
-        this.flushFX ('/primary/envelope/' + oneplus + '/', cd.getEnvelopeParam (i), dump);
-        this.flushFX ('/primary/macro/' + oneplus + '/', cd.getMacroParam (i), dump);
-        this.flushFX ('/primary/modulation/' + oneplus + '/', cd.getModulationParam (i), dump);
-    }
-    this.sendOSC ('/primary/category', cd.categoryProvider.selectedItemVerbose, dump);
-    this.sendOSC ('/primary/creator', cd.creatorProvider.selectedItemVerbose, dump);
-    this.sendOSC ('/primary/preset', cd.presetProvider.selectedItemVerbose, dump);
     
+    var sceneBank = this.model.getSceneBank ();
+    for (var i = 0; i < sceneBank.numScenes; i++)
+        this.flushScene ('/scene/' + (i + 1) + '/', sceneBank.getScene (i), dump);
+    
+    //
+    // Device / Primary Device
+    //
+    var cd = this.model.getCursorDevice ();
+    this.flushDevice ('/device', cd, dump);
+    this.flushDevice ('/primary', trackBank.primaryDevice, dump);
+
     //
     // User
     //
@@ -232,6 +205,34 @@ OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
         }
 	}
 };
+
+OSCWriter.prototype.flushScene = function (sceneAddress, scene, dump)
+{
+    this.sendOSC (sceneAddress + 'exists', scene.exists, dump);
+    this.sendOSC (sceneAddress + 'name', scene.name, dump);
+    this.sendOSC (sceneAddress + 'selected', scene.selected, dump);
+};
+
+OSCWriter.prototype.flushDevice = function (deviceAddress, device, dump)
+{
+    var selDevice = device.getSelectedDevice ();
+    this.sendOSC (deviceAddress + '/name', selDevice.name, dump);
+    this.sendOSC (deviceAddress + '/bypass', !selDevice.enabled, dump);
+	for (var i = 0; i < device.numParams; i++)
+    {
+        var oneplus = i + 1;
+        this.flushFX (deviceAddress + '/param/' + oneplus + '/', device.getFXParam (i), dump);
+        this.flushFX (deviceAddress + '/common/' + oneplus + '/', device.getCommonParam (i), dump);
+        this.flushFX (deviceAddress + '/envelope/' + oneplus + '/', device.getEnvelopeParam (i), dump);
+        this.flushFX (deviceAddress + '/macro/' + oneplus + '/', device.getMacroParam (i), dump);
+        this.flushFX (deviceAddress + '/modulation/' + oneplus + '/', device.getModulationParam (i), dump);
+    }
+/* TODO
+    this.sendOSC (deviceAddress + '/category', device.categoryProvider.selectedItemVerbose, dump);
+    this.sendOSC (deviceAddress + '/creator', device.creatorProvider.selectedItemVerbose, dump);
+    this.sendOSC (deviceAddress + '/preset', device.presetProvider.selectedItemVerbose, dump);
+*/
+}
 
 OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
 {
