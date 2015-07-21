@@ -93,6 +93,16 @@ OSCParser.prototype.parse = function (msg)
             else
                 this.transport.setLoop (value != 0);
 			break;
+            
+        case 'punchIn':
+            if (value == null)
+                this.transport.togglePunchIn ();
+			break;
+            
+        case 'punchOut':
+            if (value == null)
+                this.transport.togglePunchOut ();
+			break;
 		
 		case 'click':
             if (value == null)
