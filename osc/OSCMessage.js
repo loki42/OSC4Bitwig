@@ -111,13 +111,17 @@ OSCMessage.prototype.parse = function (data)
 };
 
 /* Takes an array of byte arrays. */
-OSCMessage.prototype.buildBundle = function (messages)
+OSCMessage.prototype.buildBundle = function (messages, max)
 {
     this.data = [].concat (OSCMessage.BUNDLE_HEADER);
+    var count = 0;
     while (msg = messages.shift ())
     {
         this.writeInteger (msg.length);
         this.data = this.data.concat (msg);
+        count++;
+        if (max && count >= max)
+            break;
     }
     return this.data;
 };

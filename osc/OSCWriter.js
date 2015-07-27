@@ -68,6 +68,7 @@ OSCWriter.prototype.flush = function (dump)
     this.sendOSC ('/autowrite', trans.isWritingArrangerAutomation, dump);
     this.sendOSC ('/autowrite/launcher', trans.isWritingClipLauncherAutomation, dump);
     this.sendOSC ('/automationWriteMode', trans.automationWriteMode, dump);
+    this.sendOSC ('/position', trans.getPositionText ());
 
     //
     // Frames
@@ -97,7 +98,7 @@ OSCWriter.prototype.flush = function (dump)
     // Master-/Track(-commands)
     //
     
-	var trackBank = this.model.getCurrentTrackBank ();
+	var trackBank = this.model.getTrackBank ();
 	for (var i = 0; i < trackBank.numTracks; i++)
         this.flushTrack ('/track/' + (i + 1) + '/', trackBank.getTrack (i), dump);
     this.flushTrack ('/master/', this.model.getMasterTrack (), dump);
@@ -138,8 +139,11 @@ OSCWriter.prototype.flush = function (dump)
     // Send all collected messages
     if (this.messages.length == 0)
         return;
-    var data = new OSCMessage ().buildBundle (this.messages);
-    host.sendDatagramPacket (Config.sendHost, Config.sendPort, data);
+    while (this.messages.length > 0)
+    {
+        var data = new OSCMessage ().buildBundle (this.messages, 1000);
+        host.sendDatagramPacket (Config.sendHost, Config.sendPort, data);
+    }
 };
 
 OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
@@ -262,7 +266,7 @@ OSCWriter.prototype.flushNotes = function (dump)
 
 OSCWriter.prototype.canSelectedTrackHoldNotes = function ()
 {
-    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
+    var t = this.model.getTrackBank ().getSelectedTrack ();
     return t != null && t.canHoldNotes;
 };
 

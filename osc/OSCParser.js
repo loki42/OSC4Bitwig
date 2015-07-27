@@ -137,6 +137,24 @@ OSCParser.prototype.parse = function (msg)
             this.transport.setPosition (value);
 			break;
 
+		case 'position':
+			switch (oscParts[0])
+            {
+                case '+':
+                    this.transport.changePosition (true, true);
+                    break;
+                case '-':
+                    this.transport.changePosition (false, true);
+                    break;
+                case '++':
+                    this.transport.changePosition (true, false);
+                    break;
+                case '--':
+                    this.transport.changePosition (false, false);
+                    break;
+            }
+			break;
+
 		case 'crossfade':
             this.transport.setCrossfade (value);
 			break;
