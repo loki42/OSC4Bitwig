@@ -336,7 +336,8 @@ OSCParser.prototype.parse = function (msg)
         //
     
         case 'device':
-            this.parseDeviceValue (this.model.getCursorDevice (), oscParts, value);
+            var cd = this.model.getCursorDevice ();
+            this.parseDeviceValue (cd, oscParts, value);
             break;
 
         case 'primary':
@@ -847,7 +848,26 @@ OSCParser.prototype.parseDeviceValue = function (cursorDevice, parts, value)
             if (value == null || value > 0)
                 cursorDevice.selectPrevious ();
             break;
+            
+        case 'layer':
+			var layerNo = parseInt (parts[0]);
+			if (isNaN (layerNo))
+            {
+                if (parts.shift () == 'parent' && cursorDevice.isNested ())
+                {
+                    cursorDevice.selectParent ();
+                    cursorDevice.selectChannel ();
+                }
+            }
+            else
+            {
+                parts.shift ();
+                this.parseDeviceLayerValue (cursorDevice, layerNo - 1, parts, value);
+            }
+            break;        
 
+            
+// TODO: Implement new browser API
         case 'preset':
             if (value == null || value > 0)
             {
@@ -897,6 +917,57 @@ OSCParser.prototype.parseDeviceValue = function (cursorDevice, parts, value)
 			println ('Unhandled Device Parameter: ' + p);
 			break;
     }
+};
+
+OSCParser.prototype.parseDeviceLayerValue = function (cursorDevice, layer, parts, value)
+{
+    var p = parts.shift ();
+	switch (p)
+ 	{
+		case 'select':
+            cursorDevice.selectLayer (layer);
+			break;
+			
+		case 'volume':
+            cursorDevice.setLayerOrDrumPadVolume (layer, parseFloat (value));
+			break;
+			
+		case 'pan':
+            cursorDevice.setLayerOrDrumPadPan (layer, parseFloat (value));
+			break;
+			
+		case 'mute':
+			var mute = value == null ? null : parseInt (value);
+            if (mute == null)
+                cursorDevice.toggleLayerOrDrumPadMute (layer);
+            else
+                cursorDevice.setLayerOrDrumPadMute (layer, mute > 0);
+            break;
+			
+		case 'solo':
+			var solo = value == null ? null : parseInt (value);
+            if (solo == null)
+                cursorDevice.toggleLayerOrDrumPadSolo (layer);
+            else
+                cursorDevice.setLayerOrDrumPadSolo (layer, solo > 0);
+            break;
+			
+		case 'send':
+			var sendNo = parseInt (parts.shift ());
+			if (isNaN (sendNo))
+				return;
+            cursorDevice.setLayerOrDrumPadSend (layer, sendNo - 1, value);
+			break;
+            
+        case 'enter':
+            cursorDevice.enterLayerOrDrumPad (layer);
+            cursorDevice.selectFirstDeviceInLayerOrDrumPad (layer);
+            break;
+            
+		default:
+			println ('Unhandled Device Layer Parameter: ' + p);
+			break;
+	}
 };
 
 OSCParser.prototype.parseFXParamValue = function (cursorDevice, fxparamIndex, parts, value)

@@ -3,6 +3,7 @@
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 OSCWriter.TRACK_ATTRIBS = [ "exists", "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "canHoldNotes", "sends", "slots", "crossfadeMode" ];
+OSCWriter.DEVICE_LAYER_ATTRIBS = [ "exists", "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "vu", "mute", "solo", "sends" ];
 OSCWriter.FXPARAM_ATTRIBS = [ "name", "valueStr", "value" ];
 OSCWriter.EMPTY_TRACK =
 {
@@ -120,6 +121,8 @@ OSCWriter.prototype.flush = function (dump)
     //
     var cd = this.model.getCursorDevice ();
     this.flushDevice ('/device', cd, dump);
+    for (var i = 0; i < cd.numDeviceLayers; i++)
+        this.flushDeviceLayers ('/device/layer/' + (i + 1) + '/', cd.getLayerOrDrumPad (i), dump);
     this.flushDevice ('/primary', trackBank.primaryDevice, dump);
 
     //
@@ -238,7 +241,37 @@ OSCWriter.prototype.flushDevice = function (deviceAddress, device, dump)
     this.sendOSC (deviceAddress + '/creator', device.creatorProvider.selectedItemVerbose, dump);
     this.sendOSC (deviceAddress + '/preset', device.presetProvider.selectedItemVerbose, dump);
 */
-}
+};
+
+OSCWriter.prototype.flushDeviceLayers = function (deviceAddress, device, dump)
+{
+    for (var a = 0; a < OSCWriter.DEVICE_LAYER_ATTRIBS.length; a++)
+    {
+        var p = OSCWriter.DEVICE_LAYER_ATTRIBS[a];
+        switch (p)
+        {
+            case 'sends':
+                if (!device.sends)
+                    continue;
+                for (var j = 0; j < 8; j++)
+                {
+                    var s = device.sends[j];
+                    for (var q in s)
+                        this.sendOSC (deviceAddress + 'send/' + (j + 1) + '/' + q, s[q], dump);
+                }
+                break;
+                
+            case 'vu':
+                if (Config.enableVUMeters)
+                    this.sendOSC (deviceAddress + p, device[p], dump);
+                break;
+                
+            default:
+                this.sendOSC (deviceAddress + p, device[p], dump);
+                break;
+        }
+	}
+};
 
 OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
 {
