@@ -853,10 +853,30 @@ OSCParser.prototype.parseDeviceValue = function (cursorDevice, parts, value)
 			var layerNo = parseInt (parts[0]);
 			if (isNaN (layerNo))
             {
-                if (parts.shift () == 'parent' && cursorDevice.isNested ())
+                switch (parts.shift ())
                 {
-                    cursorDevice.selectParent ();
-                    cursorDevice.selectChannel ();
+                    case 'parent':
+                        if (cursorDevice.isNested ())
+                        {
+                            cursorDevice.selectParent ();
+                            cursorDevice.selectChannel ();
+                        }
+                        break;
+
+                    case '+':
+                        cursorDevice.nextLayerOrDrumPad ();
+                        break;
+                        
+                    case '-':
+                        cursorDevice.previousLayerOrDrumPad ();
+                        break;
+                        
+                    case 'page':
+                        if (parts[0] == '+')
+                            cursorDevice.nextLayerOrDrumPadBank ();
+                        else
+                            cursorDevice.previousLayerOrDrumPadBank ();
+                        break;
                 }
             }
             else
