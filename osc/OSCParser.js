@@ -368,6 +368,14 @@ OSCParser.prototype.parse = function (msg)
             break;
             
         //
+        // Browser
+        //
+    
+        case 'browser':
+            this.parseBrowser (oscParts, value);
+            break;
+		
+        //
         // Keyboard
         //
     
@@ -538,6 +546,10 @@ OSCParser.prototype.parseTrackCommands = function (parts, value)
                 tb.setVolumeIndication (i, true);
                 tb.setPanIndication (i, true);
             }			
+            break;
+            
+        case 'parent':
+            this.model.getCurrentTrackBank ().selectParent ();
             break;
 
 		default:
@@ -734,6 +746,10 @@ OSCParser.prototype.parseTrackValue = function (trackIndex, parts, value)
             }
 			break;
             
+        case 'enter':
+            this.model.getCurrentTrackBank ().selectChildren ();
+            break;
+            
 		default:
 			println ('Unhandled Track Parameter: ' + p);
 			break;
@@ -886,55 +902,60 @@ OSCParser.prototype.parseDeviceValue = function (cursorDevice, parts, value)
             }
             break;        
 
-            
-// TODO: Implement new browser API
+        default:
+			println ('Unhandled Device Parameter: ' + p);
+			break;
+    }
+};
+
+OSCParser.prototype.parseBrowser = function (parts, value)
+{
+    var browser = this.model.getBrowser ();
+    
+    var p = parts.shift ();
+	switch (p)
+ 	{
+		case 'presets':
+            browser.browseForPresets ();
+			break;
+
+		case 'devices':
+            browser.browseForDevices ();
+			break;
+
+        case 'commit':
+            browser.stopBrowsing (true);
+            break;
+
+        case 'cancel':
+            browser.stopBrowsing (false);
+            break;
+
+        case 'filter':
+            var column = parseInt (parts.shift ());
+			if (isNaN (column))
+                return;
+            var session = browser.getActiveSession ();
+            if (session == null)
+                return;
+            if (parts.shift () == '+')
+                session.selectNextFilterItem (column);
+            else
+                session.selectPreviousFilterItem (column);
+            break;
+
         case 'preset':
-            if (value == null || value > 0)
-            {
-                switch (parts.shift ())
-                {
-                    case '+':
-                        cursorDevice.switchToNextPreset ();
-                        break;
-                    case '-':
-                        cursorDevice.switchToPreviousPreset ();
-                        break;
-                }
-            }
-            break;
-
-        case 'category':
-            if (value == null || value > 0)
-            {
-                switch (parts.shift ())
-                {
-                    case '+':
-                        cursorDevice.switchToNextPresetCategory ();
-                        break;
-                    case '-':
-                        cursorDevice.switchToPreviousPresetCategory ();
-                        break;
-                }
-            }
-            break;
-
-        case 'creator':
-            if (value == null || value > 0)
-            {
-                switch (parts.shift ())
-                {
-                    case '+':
-                        cursorDevice.switchToNextPresetCreator ();
-                        break;
-                    case '-':
-                        cursorDevice.switchToPreviousPresetCreator ();
-                        break;
-                }
-            }
+            var session = browser.getActiveSession ();
+            if (session == null)
+                return;
+            if (parts.shift () == '+')
+                session.selectNextResult ();
+            else
+                session.selectPreviousResult ();
             break;
 
         default:
-			println ('Unhandled Device Parameter: ' + p);
+			println ('Unhandled Browser Command: ' + p);
 			break;
     }
 };

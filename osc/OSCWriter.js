@@ -2,7 +2,7 @@
 // (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-OSCWriter.TRACK_ATTRIBS = [ "exists", "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "canHoldNotes", "sends", "slots", "crossfadeMode" ];
+OSCWriter.TRACK_ATTRIBS = [ "exists", "activated", "selected", "isGroup", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "canHoldNotes", "sends", "slots", "crossfadeMode" ];
 OSCWriter.DEVICE_LAYER_ATTRIBS = [ "exists", "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "vu", "mute", "solo", "sends" ];
 OSCWriter.FXPARAM_ATTRIBS = [ "name", "valueStr", "value" ];
 OSCWriter.EMPTY_TRACK =
@@ -120,10 +120,16 @@ OSCWriter.prototype.flush = function (dump)
     // Device / Primary Device
     //
     var cd = this.model.getCursorDevice ();
-    this.flushDevice ('/device', cd, dump);
+    this.flushDevice ('/device/', cd, dump);
     for (var i = 0; i < cd.numDeviceLayers; i++)
         this.flushDeviceLayers ('/device/layer/' + (i + 1) + '/', cd.getLayerOrDrumPad (i), dump);
-    this.flushDevice ('/primary', trackBank.primaryDevice, dump);
+    this.flushDevice ('/primary/', trackBank.primaryDevice, dump);
+    
+    //
+    // Browser
+    //
+    
+    this.flushBrowser ('/browser/', this.model.getBrowser (), dump);
 
     //
     // User
@@ -137,7 +143,7 @@ OSCWriter.prototype.flush = function (dump)
     // Notes
     //
     
-    this.flushNotes (dump);
+    this.flushNotes ('/vkb_midi/note/', dump);
 
     // Send all collected messages
     if (this.messages.length == 0)
@@ -225,22 +231,52 @@ OSCWriter.prototype.flushScene = function (sceneAddress, scene, dump)
 OSCWriter.prototype.flushDevice = function (deviceAddress, device, dump)
 {
     var selDevice = device.getSelectedDevice ();
-    this.sendOSC (deviceAddress + '/name', selDevice.name, dump);
-    this.sendOSC (deviceAddress + '/bypass', !selDevice.enabled, dump);
+    this.sendOSC (deviceAddress + 'name', selDevice.name, dump);
+    this.sendOSC (deviceAddress + 'bypass', !selDevice.enabled, dump);
 	for (var i = 0; i < device.numParams; i++)
     {
         var oneplus = i + 1;
-        this.flushFX (deviceAddress + '/param/' + oneplus + '/', device.getFXParam (i), dump);
-        this.flushFX (deviceAddress + '/common/' + oneplus + '/', device.getCommonParam (i), dump);
-        this.flushFX (deviceAddress + '/envelope/' + oneplus + '/', device.getEnvelopeParam (i), dump);
-        this.flushFX (deviceAddress + '/macro/' + oneplus + '/', device.getMacroParam (i), dump);
-        this.flushFX (deviceAddress + '/modulation/' + oneplus + '/', device.getModulationParam (i), dump);
+        this.flushFX (deviceAddress + 'param/' + oneplus + '/', device.getFXParam (i), dump);
+        this.flushFX (deviceAddress + 'common/' + oneplus + '/', device.getCommonParam (i), dump);
+        this.flushFX (deviceAddress + 'envelope/' + oneplus + '/', device.getEnvelopeParam (i), dump);
+        this.flushFX (deviceAddress + 'macro/' + oneplus + '/', device.getMacroParam (i), dump);
+        this.flushFX (deviceAddress + 'modulation/' + oneplus + '/', device.getModulationParam (i), dump);
     }
-/* TODO
-    this.sendOSC (deviceAddress + '/category', device.categoryProvider.selectedItemVerbose, dump);
-    this.sendOSC (deviceAddress + '/creator', device.creatorProvider.selectedItemVerbose, dump);
-    this.sendOSC (deviceAddress + '/preset', device.presetProvider.selectedItemVerbose, dump);
-*/
+};
+
+OSCWriter.prototype.flushBrowser = function (browserAddress, browser, dump)
+{
+    var session = browser.getActiveSession ();
+    this.sendOSC (browserAddress + 'isActive', session != null, dump);
+    if (session == null)
+        return;
+    
+    // Filter Columns
+    for (var i = 0; i < session.numFilterColumns; i++)
+    {
+        var filterAddress = browserAddress + 'filter/' + (i + 1) + '/';
+        var column = session.getFilterColumn (i);
+        this.sendOSC (filterAddress + 'exists', column.exists, dump);
+        this.sendOSC (filterAddress + 'name', column.name, dump);
+        for (var j = 0; j < session.numFilterColumnEntries; j++)
+        {
+            this.sendOSC (filterAddress + 'item/' + (j + 1) + '/exists', column.items[j].exists, dump);
+            this.sendOSC (filterAddress + 'item/' + (j + 1) + '/name', column.items[j].name, dump);
+            this.sendOSC (filterAddress + 'item/' + (j + 1) + '/hits', column.items[j].hits, dump);
+            this.sendOSC (filterAddress + 'item/' + (j + 1) + '/isSelected', column.items[j].isSelected, dump);
+        }
+    }
+    
+    // Presets
+    var presetAddress = browserAddress + 'preset/';
+    column = session.getResultColumn ();
+    for (var i = 0; i < session.numResults; i++)
+    {
+        this.sendOSC (presetAddress + (i + 1) + '/exists', column[i].exists, dump);
+        this.sendOSC (presetAddress + (i + 1) + '/name', column[i].name, dump);
+        this.sendOSC (presetAddress + (i + 1) + '/hits', column[i].hits, dump);
+        this.sendOSC (presetAddress + (i + 1) + '/isSelected', column[i].isSelected, dump);
+    }
 };
 
 OSCWriter.prototype.flushDeviceLayers = function (deviceAddress, device, dump)
@@ -282,7 +318,7 @@ OSCWriter.prototype.flushFX = function (fxAddress, fxParam, dump)
 	}
 };
 
-OSCWriter.prototype.flushNotes = function (dump)
+OSCWriter.prototype.flushNotes = function (noteAddress, dump)
 {
     var isKeyboardEnabled = this.canSelectedTrackHoldNotes ();
     var isRecording = this.model.hasRecordingState ();
@@ -293,7 +329,7 @@ OSCWriter.prototype.flushNotes = function (dump)
             (isRecording ? OSCWriter.NOTE_STATE_COLOR_REC : OSCWriter.NOTE_STATE_COLOR_ON) :
             OSCWriter.NOTE_STATE_COLORS[scales.getColor (this.model.keysTranslation, i)]) : 
             OSCWriter.NOTE_STATE_COLOR_OFF;
-        this.sendOSCColor ('/vkb_midi/note/' + i + '/color', color[0], color[1], color[2], dump);
+        this.sendOSCColor (noteAddress + i + '/color', color[0], color[1], color[2], dump);
     }
 };
 
