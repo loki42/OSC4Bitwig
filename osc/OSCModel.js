@@ -10,7 +10,7 @@ function OSCModel (scales)
     if (scales == null)
         return;
     
-    Model.call (this, 70, scales, 8, 8, 8);
+    Model.call (this, 70, scales, 8, 8, 8, 6, 16, 16, false);
     
     this.pressedKeys = initArray (0, 128);
     
