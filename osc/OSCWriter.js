@@ -107,6 +107,7 @@ OSCWriter.prototype.flush = function (dump)
     if (selectedTrack == null)
         selectedTrack = OSCWriter.EMPTY_TRACK;
     this.flushTrack ('/track/selected/', selectedTrack, dump);
+    this.flushSendNames ('/send/', dump);
     
     //
     // Scenes
@@ -219,6 +220,18 @@ OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
                 break;
         }
 	}
+};
+
+OSCWriter.prototype.flushSendNames = function (sendAddress, dump)
+{
+    var fxTrackBank = this.model.getEffectTrackBank ();
+    var isFX = this.model.getCurrentTrackBank () === fxTrackBank;
+    for (var i = 0; i < 8; i++)
+    {
+        var fxTrack = fxTrackBank.getTrack (i);
+        var isEmpty = isFX || !fxTrack.exists;
+        this.sendOSC (sendAddress + (i + 1) + '/name', isEmpty ? "" : fxTrack.name, dump);
+    }
 };
 
 OSCWriter.prototype.flushScene = function (sceneAddress, scene, dump)
