@@ -166,7 +166,7 @@ OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
             case 'sends':
                 if (!track.sends)
                     continue;
-                for (var j = 0; j < 8; j++)
+                for (var j = 0; j < this.model.numSends; j++)
                 {
                     var s = track.sends[j];
                     for (var q in s)
@@ -177,7 +177,7 @@ OSCWriter.prototype.flushTrack = function (trackAddress, track, dump)
             case 'slots':
                 if (!track.slots)
                     continue;
-                for (var j = 0; j < 8; j++)
+                for (var j = 0; j < this.model.numScenes; j++)
                 {
                     var s = track.slots[j];
                     for (var q in s)
@@ -226,7 +226,7 @@ OSCWriter.prototype.flushSendNames = function (sendAddress, dump)
 {
     var fxTrackBank = this.model.getEffectTrackBank ();
     var isFX = this.model.getCurrentTrackBank () === fxTrackBank;
-    for (var i = 0; i < 8; i++)
+    for (var i = 0; i < this.model.numSends; i++)
     {
         var fxTrack = fxTrackBank.getTrack (i);
         var isEmpty = isFX || !fxTrack.exists;
@@ -302,7 +302,7 @@ OSCWriter.prototype.flushDeviceLayers = function (deviceAddress, device, dump)
             case 'sends':
                 if (!device.sends)
                     continue;
-                for (var j = 0; j < 8; j++)
+                for (var j = 0; j < this.model.numSends; j++)
                 {
                     var s = device.sends[j];
                     for (var q in s)

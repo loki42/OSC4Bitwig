@@ -394,14 +394,17 @@ OSCParser.prototype.parse = function (msg)
             var isMacro  = p === 'macro';
             var tb = this.model.getCurrentTrackBank ();
             var cd = this.model.getCursorDevice ();
-            for (var i = 0; i < 8; i++)
+            for (var i = 0; i < this.model.numParams; i++)
             {
                 cd.getParameter (i).setIndication (isParam);
                 cd.getMacro (i).getAmount ().setIndication (isMacro);
+            }
+            for (var i = 0; i < this.model.numTracks; i++)
+            {
                 tb.setVolumeIndication (i, isVolume);
                 tb.setPanIndication (i, isVolume);
-                this.masterTrack.setVolumeIndication (isVolume);
             }
+            this.masterTrack.setVolumeIndication (isVolume);
             break;
             
         //
@@ -539,7 +542,7 @@ OSCParser.prototype.parseTrackCommands = function (parts, value)
 			if (track == null)
 				tb.select (0);
 			// Move the indication to the other bank
-            for (var i = 0; i < 8; i++)
+            for (var i = 0; i < this.model.numTracks; i++)
             {
                 tbOther.setVolumeIndication (i, false);
                 tbOther.setPanIndication (i, false);

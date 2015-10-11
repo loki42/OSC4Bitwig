@@ -10,8 +10,20 @@ function OSCModel (scales)
     if (scales == null)
         return;
     
-    Model.call (this, 70, scales, 8, 8, 8, 6, 16, 16, false);
-    
+    Model.call (this, 70,      // The MIDI CC at which the user parameters start
+                      scales,  // The scales object
+                      8,       // The number of track to monitor (per track bank)
+                      8,       // The number of scenes to monitor (per scene bank)
+                      8,       // The number of sends to monitor
+                      6,       // The number of filters columns in the browser to monitor
+                      16,      // The number of entries in one filter column to monitor
+                      16,      // The number of search results in the browser to monitor
+                      false,   // Don't navigate groups, all tracks are flat
+                      8,       // The number of parameter of a device to monitor
+                      8,       // The number of devices to monitor
+                      8,       // The number of device layers to monitor
+                      16);     // The number of drum pad layers to monitor
+
     this.pressedKeys = initArray (0, 128);
     
     var tb = this.getTrackBank ();
