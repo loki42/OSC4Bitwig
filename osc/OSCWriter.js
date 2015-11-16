@@ -2,7 +2,7 @@
 // (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-OSCWriter.TRACK_ATTRIBS = [ "exists", "activated", "selected", "isGroup", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "canHoldNotes", "sends", "slots", "crossfadeMode" ];
+OSCWriter.TRACK_ATTRIBS = [ "exists", "type", "activated", "selected", "isGroup", "name", "volumeStr", "volume", "panStr", "pan", "color", "vu", "mute", "solo", "recarm", "monitor", "autoMonitor", "canHoldNotes", "sends", "slots", "crossfadeMode" ];
 OSCWriter.DEVICE_LAYER_ATTRIBS = [ "exists", "activated", "selected", "name", "volumeStr", "volume", "panStr", "pan", "vu", "mute", "solo", "sends" ];
 OSCWriter.FXPARAM_ATTRIBS = [ "name", "valueStr", "value" ];
 OSCWriter.EMPTY_TRACK =
