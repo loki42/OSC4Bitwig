@@ -114,7 +114,6 @@ AbstractTrackBankProxy.prototype.init = function ()
         t.addNoteObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleNotes));
         
         // Track attributes
-        t.addTrackTypeObserver (this.textLength, '', doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleType));
         t.addPositionObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handlePosition));
         t.addIsGroupObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleIsGroup));
         t.getArm ().addValueObserver (doObjectIndex (this, i, AbstractTrackBankProxy.prototype.handleRecArm));
@@ -560,7 +559,6 @@ AbstractTrackBankProxy.prototype.createTracks = function (count)
         var t =
         {
             index: i,
-            type: '',
             position: i,
             exists: false,
             activated: true,
@@ -659,11 +657,6 @@ AbstractTrackBankProxy.prototype.handleNotes = function (index, pressed, note, v
     var sel = this.getSelectedTrack ();
     if (sel != null && sel.index == index)
         this.notifyListeners (pressed, note, Math.round (velocity * 127.0));
-};
-
-AbstractTrackBankProxy.prototype.handleType = function (index, type)
-{
-    this.tracks[index].type = type;
 };
 
 AbstractTrackBankProxy.prototype.handleExists = function (index, exists)

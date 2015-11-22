@@ -718,7 +718,7 @@ OSCParser.prototype.parseTrackValue = function (trackIndex, parts, value)
 			break;
             
         case 'clip':
-            var p = parts.shift ();
+            p = parts.shift ();
 			var clipNo = parseInt (p);
 			if (isNaN (clipNo))
 			{
