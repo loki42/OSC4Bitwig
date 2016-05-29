@@ -4,6 +4,7 @@
 
 function OSCParser (model, receiveHost, receivePort)
 {
+	println ("Starting OSC parser");
 	this.model = model;
     
     this.transport = this.model.getTransport ();
@@ -14,7 +15,22 @@ function OSCParser (model, receiveHost, receivePort)
     this.model.updateNoteMapping ();
     
     this.port = host.getMidiInPort (0);
-    this.noteInput = this.port.createNoteInput ("OSC Midi");
+    this.noteInput = this.port.createNoteInput ("Laserharp");
+	this.noteInput.setUseExpressiveMidi(true, 0, 48);
+
+	// MPE channel tracking
+	this.noteOnCounter = 1;
+	this.noteChannelMap = [];
+	this.allocatedChannels = [];
+ 
+	for (var i=1; i<17; i++)
+	{
+		this.allocatedChannels[i] = 1;	
+	}
+	for (var i=0; i<127; i++)
+	{
+		this.noteChannelMap[i] = 1;	
+	}
     
     host.addDatagramPacketObserver (receiveHost, receivePort, doObject (this, function (data)
     {
@@ -1133,27 +1149,65 @@ OSCParser.prototype.parseUserValue = function (index, parts, value)
     }
 };
 
+OSCParser.prototype.noteOnChannel = function (note)
+{
+	// increase our note on counter
+	this.noteOnCounter++;
+	// we got a note on, consume a voice, do nothing if not MPE
+	// channel 1 is the master channel, 2 is the first usable. 
+	if (this.noteChannelMap[note] == 1) // note not allocated to channel
+	{
+		// pop of the channel with the lowest score 
+		var lowest = Number.MAX_VALUE;
+		var chan = 1;
+		for (var i=2; i<17; i++)
+		{
+			if (this.allocatedChannels[i] < lowest)
+			{
+				chan = i;
+				lowest = this.allocatedChannels[i];	
+			}	
+		}
+		// set popped off channel to current note on counter 
+		this.noteChannelMap[note] = chan;
+		this.allocatedChannels[chan] = this.noteOnCounter;
+	}
+};
+
+OSCParser.prototype.noteOffChannel = function (note)
+{
+	this.allocatedChannels[this.noteChannelMap[note]] = this.noteOnCounter - this.allocatedChannels[this.noteChannelMap[note]];
+
+	this.noteChannelMap[note] = 1;
+};
+
+OSCParser.prototype.getChannel = function (note)
+{
+	return this.noteChannelMap[note];
+}
+
 OSCParser.prototype.parseMidi = function (parts, value)
 {
-    var path2 = parts.shift ();
-    var midiChannel = parseInt (path2);
-    if (isNaN (midiChannel))
-    {
-        switch (path2)
-        {
-            case 'velocity':
-                var velocity = parseInt (value);
-                Config.setAccentEnabled (velocity > 0);
-                if (velocity > 0)
-                    Config.setAccentValue (velocity);
-                break;
+    // var path2 = parts.shift ();
+    // var midiChannel = parseInt (path2);
+    // if (isNaN (midiChannel))
+    // {
+    //     switch (path2)
+    //     {
+    //         case 'velocity':
+    //             var velocity = parseInt (value);
+    //             Config.setAccentEnabled (velocity > 0);
+    //             if (velocity > 0)
+    //                 Config.setAccentValue (velocity);
+    //             break;
             
-            default:
-                println ('Unhandled Midi Parameter: ' + p);
-                break;
-        }
-        return;
-    }
+    //         default:
+    //             println ('Unhandled Midi Parameter: ' + p);
+    //             break;
+    //     }
+    //     return;
+    // }
+	var midiChannel = 1; // default, global midi channel for MPE
     
     var p = parts.shift ();
     switch (p)
@@ -1180,11 +1234,22 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     }
                     break;
             
-                default:
-                    var note = parseInt (n);
+                case 'on':
+					var noteToParse = parts.shift ();
+                    var note = parseInt (noteToParse);
                     var velocity = parseInt (value);
                     if (velocity > 0)
+					{
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
+						this.noteOnChannel(note);
+						midiChannel = getChannel(note);
+
+					}
+					else // note off
+					{
+						midiChannel = getChannel(note);
+						this.noteOffChannel(note);
+					}
                     this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.model.keysTranslation[note], velocity);
                     
                     // Mark selected notes
@@ -1193,8 +1258,31 @@ OSCParser.prototype.parseMidi = function (parts, value)
                         if (this.model.keysTranslation[note] == this.model.keysTranslation[i])
                             this.model.pressedKeys[i] = velocity;
                     }
-            }
-            break;
+					break;
+				case 'cc':
+					// /vkb_midi/note/cc/60/74 100
+					var note = parseInt (parts.shift ());
+					var cc = parseInt (parts.shift ());
+					midiChannel = getChannel(note);
+					this.noteInput.sendRawMidiEvent (0xB0 + midiChannel, cc, parseInt (value));
+				break;
+
+				case 'aftertouch':
+					var note = parseInt (parts.shift ());
+					var velocity = parseInt (value);
+					midiChannel = getChannel(note);
+					if (velocity > 0)
+						velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
+					this.noteInput.sendRawMidiEvent (0xA0 + midiChannel, this.model.keysTranslation[note], velocity);
+				break;
+
+				case 'pitchbend':
+					var note = parseInt (parts.shift ());
+					midiChannel = getChannel(note);
+					this.noteInput.sendRawMidiEvent (0xE0 + midiChannel, 0, value);
+				break;
+			}
+			break;
             
         case 'drum':
             var n = parts.shift ();
@@ -1222,7 +1310,16 @@ OSCParser.prototype.parseMidi = function (parts, value)
                     var note = parseInt (n);
                     var velocity = parseInt (value);
                     if (velocity > 0)
+					{
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
+						this.noteOnChannel(note);
+						midiChannel = getChannel(note);
+					}
+					else // note off
+					{
+						midiChannel = getChannel(note);
+						this.noteOffChannel(note);
+					}
                     this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.model.drumsTranslation[note], velocity);
                     break;
             }

@@ -1,6 +1,7 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
 // (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
+// modified for The Music Room.
 
 loadAPI (1);
 load ("framework/helper/ClassLoader.js");
@@ -8,7 +9,7 @@ load ("framework/daw/ClassLoader.js");
 load ("osc/ClassLoader.js");
 load ("Config.js");
 
-host.defineController ("Open Sound Control", "OSC", "3.11", "94DD41B0-EFEE-11E3-AC10-0800200C9A66", "Jürgen Moßgraber");
+host.defineController ("Chroma Coda", "The Music Room", "1.0", "2ad1432f-ace2-443f-af64-304372c2e405", "Chroma Coda");
 host.defineMidiPorts (1, 0);
 
 var model = null;
@@ -25,6 +26,7 @@ String.prototype.getBytes = function ()
 
 function init ()
 {
+	println ("Starting Init.");
     Config.init ();
 
     var scales = new Scales (0, 128, 128, 1);
