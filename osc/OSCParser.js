@@ -41,11 +41,9 @@ function OSCParser (model, receiveHost, receivePort)
 
         for (var i = 0; i < messages.length; i++)
         {
-            /*
             println ("Address: " + messages[i].address);
             println ("Types: " + messages[i].types);
             println ("Values: " + messages[i].values);
-            */
             this.parse (messages[i]);
         }
     }));
@@ -1242,12 +1240,12 @@ OSCParser.prototype.parseMidi = function (parts, value)
 					{
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
 						this.noteOnChannel(note);
-						midiChannel = getChannel(note);
+						midiChannel = this.getChannel(note);
 
 					}
 					else // note off
 					{
-						midiChannel = getChannel(note);
+						midiChannel = this.getChannel(note);
 						this.noteOffChannel(note);
 					}
                     this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.model.keysTranslation[note], velocity);
@@ -1263,14 +1261,14 @@ OSCParser.prototype.parseMidi = function (parts, value)
 					// /vkb_midi/note/cc/60/74 100
 					var note = parseInt (parts.shift ());
 					var cc = parseInt (parts.shift ());
-					midiChannel = getChannel(note);
+					midiChannel = this.getChannel(note);
 					this.noteInput.sendRawMidiEvent (0xB0 + midiChannel, cc, parseInt (value));
 				break;
 
 				case 'aftertouch':
 					var note = parseInt (parts.shift ());
 					var velocity = parseInt (value);
-					midiChannel = getChannel(note);
+					midiChannel = this.getChannel(note);
 					if (velocity > 0)
 						velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
 					this.noteInput.sendRawMidiEvent (0xA0 + midiChannel, this.model.keysTranslation[note], velocity);
@@ -1278,8 +1276,9 @@ OSCParser.prototype.parseMidi = function (parts, value)
 
 				case 'pitchbend':
 					var note = parseInt (parts.shift ());
-					midiChannel = getChannel(note);
+					midiChannel = this.getChannel(note);
 					this.noteInput.sendRawMidiEvent (0xE0 + midiChannel, 0, value);
+					   // host.getMidiOutPort(0).sendMidi(0xE0 | channel, value & 0x7F, (value >> 7) & 0x7F);
 				break;
 			}
 			break;
@@ -1313,11 +1312,11 @@ OSCParser.prototype.parseMidi = function (parts, value)
 					{
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
 						this.noteOnChannel(note);
-						midiChannel = getChannel(note);
+						midiChannel = this.getChannel(note);
 					}
 					else // note off
 					{
-						midiChannel = getChannel(note);
+						midiChannel = this.getChannel(note);
 						this.noteOffChannel(note);
 					}
                     this.noteInput.sendRawMidiEvent (0x90 + midiChannel, this.model.drumsTranslation[note], velocity);
