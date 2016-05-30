@@ -22,6 +22,7 @@ function OSCParser (model, receiveHost, receivePort)
 	this.noteOnCounter = 1;
 	this.noteChannelMap = [];
 	this.allocatedChannels = [];
+	this.pitchBendRange = 48;
  
 	for (var i=1; i<17; i++)
 	{
@@ -41,9 +42,9 @@ function OSCParser (model, receiveHost, receivePort)
 
         for (var i = 0; i < messages.length; i++)
         {
-            println ("Address: " + messages[i].address);
-            println ("Types: " + messages[i].types);
-            println ("Values: " + messages[i].values);
+            // println ("Address: " + messages[i].address);
+            // println ("Types: " + messages[i].types);
+            // println ("Values: " + messages[i].values);
             this.parse (messages[i]);
         }
     }));
@@ -1261,24 +1262,33 @@ OSCParser.prototype.parseMidi = function (parts, value)
 					// /vkb_midi/note/cc/60/74 100
 					var note = parseInt (parts.shift ());
 					var cc = parseInt (parts.shift ());
-					midiChannel = this.getChannel(note);
-					this.noteInput.sendRawMidiEvent (0xB0 + midiChannel, cc, parseInt (value));
+					var ccValue = Math.min(Math.round(parseFloat (value) * 127), 127);
+					// MPE parameters that are per note get sent on the right channel
+					if (cc >= 70 && cc <= 79)
+					{
+						midiChannel = this.getChannel(note);
+					}
+					else
+					{
+						midiChannel = 1;
+					}
+					// println ('Got timbre: cc: ' + cc + "cc value:" + ccValue);
+					this.noteInput.sendRawMidiEvent (0xB0 + midiChannel, cc, ccValue);
 				break;
 
-				case 'aftertouch':
+				case 'pressure':
 					var note = parseInt (parts.shift ());
-					var velocity = parseInt (value);
+					var pressure = Math.min(Math.round(parseFloat (value) * 127), 127);
 					midiChannel = this.getChannel(note);
-					if (velocity > 0)
-						velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
-					this.noteInput.sendRawMidiEvent (0xA0 + midiChannel, this.model.keysTranslation[note], velocity);
+					this.noteInput.sendRawMidiEvent (0xD0 + midiChannel, pressure, 0);
 				break;
 
 				case 'pitchbend':
 					var note = parseInt (parts.shift ());
+					var bend = Math.round(Math.max(0, Math.min(16383, ((parseFloat(value) * 8192) / (this.pitchBendRange / 2)) + 8192)));
+					// println ('Got bend: ' + bend + "value is: " + parseFloat(value));
 					midiChannel = this.getChannel(note);
-					this.noteInput.sendRawMidiEvent (0xE0 + midiChannel, 0, value);
-					   // host.getMidiOutPort(0).sendMidi(0xE0 | channel, value & 0x7F, (value >> 7) & 0x7F);
+					this.noteInput.sendRawMidiEvent (0xE0 + midiChannel, bend & 0x7F, (bend >> 7) & 0x7F);
 				break;
 			}
 			break;
@@ -1326,7 +1336,8 @@ OSCParser.prototype.parseMidi = function (parts, value)
             
         case 'cc':
             var cc = parseInt (parts.shift ());
-            this.noteInput.sendRawMidiEvent (0xB0 + midiChannel, cc, parseInt (value));
+			var ccValue = Math.min(Math.round(parseFloat (value) * 127), 127);
+            this.noteInput.sendRawMidiEvent (0xB0 + midiChannel, cc, ccValue);
             break;
             
         case 'aftertouch':

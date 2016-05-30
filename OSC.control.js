@@ -38,7 +38,7 @@ function init ()
     scheduleTask (function ()
     {
         writer.flush (true);
-    }, null, 100);
+    }, null, 1000);
 
 	println ("Initialized.");
 }
