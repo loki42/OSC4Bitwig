@@ -94,10 +94,17 @@ OSCParser.prototype.parse = function (msg)
 			break;
 
 		case 'overdub':
-            if (value != null && value == 0)
-                return;
-            if (oscParts.length > 0 && oscParts[0] == 'launcher')
-                this.transport.toggleLauncherOverdub ();
+			if (oscParts.length > 0 && oscParts[0] == 'launcher')
+			{
+				if (value == null)
+				{
+					this.transport.toggleLauncherOverdub ();
+				}
+				else
+				{
+					this.transport.setLauncherOverdub (value != 0)
+				}
+			}
             else
                 this.transport.toggleOverdub ();
 			break;
@@ -760,6 +767,15 @@ OSCParser.prototype.parseTrackValue = function (trackIndex, parts, value)
                     case 'record':
                         this.model.getCurrentTrackBank ().getClipLauncherSlots (trackIndex).record (clipNo - 1);
                         break;
+					case 'new':
+						this.onNewClip(trackIndex, clipNo-1, parseInt (value));
+						break;
+					case 'delete':
+                        this.model.getCurrentTrackBank ().getClipLauncherSlots (trackIndex).deleteClip (clipNo - 1);
+						break;
+					// case 'setlength':
+                        // this.model.getCurrentTrackBank ().getClipLauncherSlots (trackIndex).record (clipNo - 1);
+					// 	this.clip.getLoopLength ().setRaw (length);
                 }
             }
 			break;
@@ -773,6 +789,26 @@ OSCParser.prototype.parseTrackValue = function (trackIndex, parts, value)
 			break;
 	}
 };
+
+
+OSCParser.prototype.onNewClip = function (trackIndex, slotIndex, clipLength)
+{
+    var tb = this.model.getCurrentTrackBank ();
+    // tb.createClip (trackIndex, slotIndex, clipLength * this.model.getQuartersPerMeasure ());
+    var slots = tb.getClipLauncherSlots (trackIndex);
+	slots.createEmptyClip(slotIndex, clipLength * this.model.getQuartersPerMeasure ());	
+	var selectedSlot = tb.getSelectedSlot (trackIndex);
+    var selectedSlotIndex = selectedSlot == null ? 0 : selectedSlot.index;
+    if (selectedSlotIndex != slotIndex)
+	{
+        slots.select (slotIndex);
+	}
+    slots.launch (slotIndex);
+    this.model.getTransport ().setLauncherOverdub (true);
+	// select the track as well so we can record with the right instrument
+	this.model.getCurrentTrackBank ().select (trackIndex);
+};
+
 
 OSCParser.prototype.parseSendValue = function (trackIndex, sendIndex, parts, value)
 {
@@ -1242,6 +1278,7 @@ OSCParser.prototype.parseMidi = function (parts, value)
                         velocity = Config.accentActive ? Config.fixedAccentValue : velocity;
 						this.noteOnChannel(note);
 						midiChannel = this.getChannel(note);
+						println ('Got note on: cc: ' + note + "channel:" + midiChannel);
 
 					}
 					else // note off
