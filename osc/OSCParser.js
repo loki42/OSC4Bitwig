@@ -15,7 +15,10 @@ function OSCParser (model, receiveHost, receivePort)
     this.model.updateNoteMapping ();
     
     this.port = host.getMidiInPort (0);
-    this.noteInput = this.port.createNoteInput ("Laserharp");
+	this.port.setMidiCallback(function (status, data1, data2)
+							  {
+							  });
+    this.noteInput = this.port.createNoteInput ("Laserharp", "??????");
 	this.noteInput.setUseExpressiveMidi(true, 0, 48);
 
 	// MPE channel tracking
@@ -23,6 +26,15 @@ function OSCParser (model, receiveHost, receivePort)
 	this.noteChannelMap = [];
 	this.allocatedChannels = [];
 	this.pitchBendRange = 48;
+
+	// initialization messages
+   // sendChannelController(0, 127, 15);
+
+   // // Set up pitch bend sensitivity to 48 semitones (00/00)
+   // sendChannelController(0, 100, 0); // Registered Parameter Number (RPN) - LSB*
+   // sendChannelController(0, 101, 0); // Registered Parameter Number (RPN) - MSB*
+   // sendChannelController(0, 36, 0);
+   // sendChannelController(0, 6, 24);
  
 	for (var i=1; i<17; i++)
 	{
@@ -49,6 +61,8 @@ function OSCParser (model, receiveHost, receivePort)
         }
     }));
 }
+
+
 
 OSCParser.prototype.parse = function (msg)
 {
