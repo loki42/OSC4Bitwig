@@ -1,12 +1,5 @@
-OSC4Bitwig
+The Music Room Bitwig Integration.
 ===========
 
-Bitwig Studio script to support the OSC protocol.
-See the Wiki for more information: https://github.com/git-moss/OSC4Bitwig/wiki
+Based on OSC4Bitwig by Jürgen Moßgraber 
 
-Get the latest stable release from: http://www.mossgrabers.de/Software/Bitwig/Bitwig.html
-
-The version in GitHub might always be in an alpha or beta state, you have been warned!
-
-The GitHub Version is compatible with the 1.2.
-The version on my Homepage is compatible with 1.2.

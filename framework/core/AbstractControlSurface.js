@@ -14,7 +14,7 @@ function AbstractControlSurface (output, input, buttons)
     this.output = output;
     this.input = input;
     this.input.init ();
-    this.input.setMidiCallback (doObject (this, this.handleMidi));
+    // this.input.setMidiCallback (doObject (this, this.handleMidi));
     this.noteInput = this.input.createNoteInput ();
     
     this.selectButtonId = -1;

@@ -2,6 +2,17 @@
 // (c) 2014-2015
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
+var LOWEST_CC = 1;
+var HIGHEST_CC = 119;
+
+var DEVICE_START_CC = 20;
+var DEVICE_END_CC = 27;
+
+function isInDeviceParametersRange(cc)
+{
+        return cc >= DEVICE_START_CC && cc <= DEVICE_END_CC;
+}
+
 function OSCParser (model, receiveHost, receivePort)
 {
 	println ("Starting OSC parser");
@@ -16,9 +27,25 @@ function OSCParser (model, receiveHost, receivePort)
     
     this.port = host.getMidiInPort (0);
 	this.port.setMidiCallback(function (status, data1, data2)
-							  {
-							  });
+	  {
+        if (status == 176)
+        {
+			if (isInDeviceParametersRange(data1))
+			{
+				// println ("isInDeviceParametersRange");
+				var index = data1 - DEVICE_START_CC;
+				var cd = this.model.getCursorDevice ();
+				cd.getMacro(index).getAmount().set(data2, 128);
+			}
+			// else if (data1 >= LOWEST_CC && data1 <= HIGHEST_CC && (data1 > 79 || data1 < 70))
+			// {
+			// 	var index = data1 - LOWEST_CC;
+			// 	userControls.getControl(index).set(data2, 128);
+			// }
+		}
+	  });
     this.noteInput = this.port.createNoteInput ("Laserharp", "??????");
+	this.noteInput.setShouldConsumeEvents(false);
 	this.noteInput.setUseExpressiveMidi(true, 0, 48);
 
 	// MPE channel tracking
@@ -80,7 +107,15 @@ OSCParser.prototype.parse = function (msg)
         //
 
         case 'refresh':
-            writer.flush (true);
+			if (oscParts.length > 1 && oscParts[0] == 'track')
+			{
+				var trackNo = parseInt (oscParts[1]);
+				writer.flushTrack ('/track/' + (trackNo) + '/', this.model.getCurrentTrackBank ().getTrack (trackNo), true);
+			}
+			else
+			{
+				writer.flush (true);
+			}
             break;
             
         //
